@@ -4,39 +4,24 @@
 DROP PROCEDURE "DO_LONGRUN";
 DROP PACKAGE "PKG_SESSION_LONGOPS";
 DROP PACKAGE BODY "PKG_SESSION_LONGOPS";
---------------------------------------------------------
---  DDL for Procedure DO_LONGRUN
---------------------------------------------------------
-set define off;
 
-CREATE OR REPLACE EDITIONABLE PROCEDURE "DO_LONGRUN" as
-begin
-  apex_util.set_workspace('ULF');
-  -- APEX 5.0 and earlier: 
-  -- apex_util.set_security_group_id(apex_util.find_security_group_id('{my workspace}'));
-  pkg_session_longops.do_init('DO_LONGRUN', 300, 'seconds');
-  for i in 1..30 loop
-    apex_util.pause(10);
-    pkg_session_longops.do_update('DO_LONGRUN', (i * 10));
-  end loop;
-end;
-/
 
 --------------------------------------------------------
 --  DDL for Package PKG_SESSION_LONGOPS
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE PACKAGE "PKG_SESSION_LONGOPS" is
+CREATE OR REPLACE PACKAGE "PKG_SESSION_LONGOPS" is
   procedure do_init (p_opname in varchar2, p_target in number, p_units in varchar2);
   procedure do_update (p_opname in varchar2, p_status in number);
 end pkg_session_longops;
 /
+show errors
 
 --------------------------------------------------------
 --  DDL for Package Body PKG_SESSION_LONGOPS
 --------------------------------------------------------
 
-CREATE OR REPLACE EDITIONABLE PACKAGE BODY "PKG_SESSION_LONGOPS" is
+CREATE OR REPLACE PACKAGE BODY "PKG_SESSION_LONGOPS" is
   type t_array is table of number index by varchar2(255);
   g_arr_rindex t_array;
   g_arr_slno   t_array;
@@ -81,4 +66,22 @@ CREATE OR REPLACE EDITIONABLE PACKAGE BODY "PKG_SESSION_LONGOPS" is
     g_arr_slno(p_opname) := l_slno;
   end do_update;
 end pkg_session_longops;
+/
+
+--------------------------------------------------------
+--  DDL for Procedure DO_LONGRUN
+--------------------------------------------------------
+set define off;
+
+CREATE OR REPLACE PROCEDURE "DO_LONGRUN" as
+begin
+  apex_util.set_workspace('APEX_ULF');
+  -- APEX 5.0 and earlier: 
+  -- apex_util.set_security_group_id(apex_util.find_security_group_id('{my workspace}'));
+  pkg_session_longops.do_init('DO_LONGRUN', 300, 'seconds');
+  for i in 1..30 loop
+    apex_util.pause(10);
+    pkg_session_longops.do_update('DO_LONGRUN', (i * 10));
+  end loop;
+end;
 /
